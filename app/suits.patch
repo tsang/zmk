@@ -1,0 +1,55 @@
+diff --git a/app/boards/arm/corne-ish_zen/CMakeLists.txt b/app/boards/arm/corne-ish_zen/CMakeLists.txt
+index 09bf79e..4ce6741 100644
+--- a/app/boards/arm/corne-ish_zen/CMakeLists.txt
++++ b/app/boards/arm/corne-ish_zen/CMakeLists.txt
+@@ -28,7 +28,7 @@ zephyr_library_sources(widgets/icons/batt_5.c)
+ zephyr_library_sources(widgets/icons/batt_5_chg.c)
+ zephyr_library_sources(widgets/icons/batt_0.c)
+ zephyr_library_sources(widgets/icons/batt_0_chg.c)
+-zephyr_library_sources(widgets/icons/zenlogo.c)
++zephyr_library_sources(widgets/icons/suits.c)
+ zephyr_library_sources(widgets/icons/bluetooth_advertising.c)
+ zephyr_library_sources(widgets/icons/bluetooth_connected_right.c)
+ zephyr_library_sources(widgets/icons/bluetooth_disconnected_right.c)
+@@ -51,4 +51,4 @@ zephyr_library_include_directories(${ZEPHYR_BASE}/lib/gui/lvgl/)
+ zephyr_library_sources_ifdef(CONFIG_ZMK_DISPLAY custom_status_screen.c)
+ zephyr_library_sources(${ZEPHYR_BASE}/misc/empty_file.c)
+ zephyr_library_include_directories(${CMAKE_SOURCE_DIR}/include)
+-zephyr_library_include_directories(${ZEPHYR_BASE}/drivers)
+\ No newline at end of file
++zephyr_library_include_directories(${ZEPHYR_BASE}/drivers)
+diff --git a/app/boards/arm/corne-ish_zen/custom_status_screen.c b/app/boards/arm/corne-ish_zen/custom_status_screen.c
+index 20f051e..d881760 100644
+--- a/app/boards/arm/corne-ish_zen/custom_status_screen.c
++++ b/app/boards/arm/corne-ish_zen/custom_status_screen.c
+@@ -13,7 +13,7 @@
+ #include <logging/log.h>
+ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
+ 
+-LV_IMG_DECLARE(zenlogo);
++LV_IMG_DECLARE(suits);
+ LV_IMG_DECLARE(layers2);
+ 
+ #if IS_ENABLED(CONFIG_CUSTOM_WIDGET_BATTERY_STATUS)
+@@ -55,10 +55,10 @@ lv_obj_t *zmk_display_status_screen() {
+ #endif
+ 
+ #if CONFIG_BOARD_CORNEISH_ZEN_RIGHT
+-    lv_obj_t * zenlogo_icon;
+-    zenlogo_icon = lv_img_create(screen, NULL);
+-    lv_img_set_src(zenlogo_icon, &zenlogo);
+-    lv_obj_align(zenlogo_icon, NULL, LV_ALIGN_IN_BOTTOM_MID, 2, -5);
++    lv_obj_t * suits_icon;
++    suits_icon = lv_img_create(screen, NULL);
++    lv_img_set_src(suits_icon, &suits);
++    lv_obj_align(suits_icon, NULL, LV_ALIGN_IN_BOTTOM_MID, 2, -5);
+ #endif
+ 
+ #if CONFIG_BOARD_CORNEISH_ZEN_LEFT
+@@ -73,4 +73,4 @@ lv_obj_t *zmk_display_status_screen() {
+     //display_blanking_off(display_dev);
+ 
+     return screen;
+-}
+\ No newline at end of file
++}
