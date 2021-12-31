@@ -47,12 +47,12 @@ static const struct conditional_layer_cfg CONDITIONAL_LAYER_CFGS[] = {
 static const int32_t NUM_CONDITIONAL_LAYER_CFGS =
     sizeof(CONDITIONAL_LAYER_CFGS) / sizeof(*CONDITIONAL_LAYER_CFGS);
 
-static void conditional_layer_activate(int8_t layer) {
+static void conditional_layer_activate(int8_t layer, bool momentary) {
     // This may trigger another event that could, in turn, activate additional then-layers. However,
     // the process will eventually terminate (at worst, when every layer is active).
     if (!zmk_keymap_layer_active(layer)) {
         LOG_DBG("layer %d", layer);
-        zmk_keymap_layer_activate(layer);
+        zmk_keymap_layer_activate(layer, momentary);
     }
 }
 
@@ -77,7 +77,7 @@ static int layer_state_changed_listener(const zmk_event_t *ev) {
         // reevaluate the current layer state for each config since activation of one layer can also
         // trigger activation of another.
         if ((zmk_keymap_layer_state() & mask) == mask) {
-            conditional_layer_activate(cfg->then_layer);
+            conditional_layer_activate(cfg->then_layer, zmk_keymap_layers_any_momentary(mask));
         } else {
             conditional_layer_deactivate(cfg->then_layer);
         }
