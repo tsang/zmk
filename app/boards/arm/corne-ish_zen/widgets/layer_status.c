@@ -24,7 +24,9 @@ K_MUTEX_DEFINE(layer_status_mutex);
 
 struct {
     uint8_t index;
+#if IS_ENABLED(CONFIG_ZMK_DISPLAY_HIDE_MOMENTARY_LAYERS)
     uint8_t last_perm_index;
+#endif
     const char *label;
 } layer_status_state;
 
@@ -33,7 +35,9 @@ void layer_status_init() {
         return;
     }
     style_initialized = true;
+#if IS_ENABLED(CONFIG_ZMK_DISPLAY_HIDE_MOMENTARY_LAYERS)
     layer_status_state.last_perm_index = 0;
+#endif
     lv_style_init(&label_style);
     lv_style_set_text_color(&label_style, LV_STATE_DEFAULT, LV_COLOR_BLACK);
     lv_style_set_text_font(&label_style, LV_STATE_DEFAULT, &lv_font_montserrat_16);
@@ -65,23 +69,31 @@ void set_layer_symbol(lv_obj_t *label) {
 static bool update_state() {
     k_mutex_lock(&layer_status_mutex, K_FOREVER);
 
+#if IS_ENABLED(CONFIG_ZMK_DISPLAY_HIDE_MOMENTARY_LAYERS)
     bool update_display = false;
+#endif
 
     layer_status_state.index = zmk_keymap_highest_layer_active();
     layer_status_state.label = zmk_keymap_layer_label(layer_status_state.index);
 
     LOG_DBG("Layer changed to %i", layer_status_state.index);
 
+#if IS_ENABLED(CONFIG_ZMK_DISPLAY_HIDE_MOMENTARY_LAYERS)
     if (!zmk_keymap_layer_momentary(layer_status_state.index)
         && layer_status_state.last_perm_index != layer_status_state.index) {
         layer_status_state.last_perm_index = layer_status_state.index;
         LOG_DBG("Last perm layer index updated to %i", layer_status_state.index);
         update_display = true;
     }
+#endif
 
     k_mutex_unlock(&layer_status_mutex);
 
+#if IS_ENABLED(CONFIG_ZMK_DISPLAY_HIDE_MOMENTARY_LAYERS)
     return update_display;
+#else
+    return true;
+#endif
 }
 
 int zmk_widget_layer_status_init(struct zmk_widget_layer_status *widget, lv_obj_t *parent) {
