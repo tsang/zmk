@@ -30,11 +30,6 @@ config I2C
 	bool
 	default y
 
-config I2C_0
-    bool
-    default y
-    depends on I2C
-
 menuconfig SENSOR
     bool "Sensor Drivers"
 
