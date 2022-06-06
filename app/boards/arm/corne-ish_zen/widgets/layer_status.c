@@ -1,9 +1,9 @@
 /*
-*
-* Copyright (c) 2021 Darryl deHaan
-* SPDX-License-Identifier: MIT
-*
-*/
+ *
+ * Copyright (c) 2021 Darryl deHaan
+ * SPDX-License-Identifier: MIT
+ *
+ */
 
 #include <kernel.h>
 #include <logging/log.h>
@@ -37,7 +37,6 @@ void layer_status_init() {
     lv_style_set_text_font(&label_style, LV_STATE_DEFAULT, &lv_font_montserrat_16);
     lv_style_set_text_letter_space(&label_style, LV_STATE_DEFAULT, 1);
     lv_style_set_text_line_space(&label_style, LV_STATE_DEFAULT, 1);
-
 }
 
 void set_layer_symbol(lv_obj_t *label) {
@@ -47,8 +46,8 @@ void set_layer_symbol(lv_obj_t *label) {
     uint8_t active_layer_index = layer_status_state.index;
     k_mutex_unlock(&layer_status_mutex);
 
-    //LOG_DBG("Layer Label: %s", layer_label);
-    
+    // LOG_DBG("Layer Label: %s", layer_label);
+
     if (layer_label == NULL) {
         char text[6] = {};
 
@@ -75,7 +74,7 @@ int zmk_widget_layer_status_init(struct zmk_widget_layer_status *widget, lv_obj_
     widget->obj = lv_label_create(parent, NULL);
     lv_obj_add_style(widget->obj, LV_LABEL_PART_MAIN, &label_style);
     set_layer_symbol(widget->obj);
-    sys_slist_append(&widgets, &widget->node); 
+    sys_slist_append(&widgets, &widget->node);
 
     return 0;
 }
@@ -92,7 +91,8 @@ void layer_status_update_cb(struct k_work *work) {
 K_WORK_DEFINE(layer_status_update_work, layer_status_update_cb);
 
 int layer_status_listener(const zmk_event_t *eh) {
-    update_state();;
+    update_state();
+    ;
 
     k_work_submit_to_queue(zmk_display_work_q(), &layer_status_update_work);
     return 0;

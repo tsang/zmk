@@ -1,9 +1,9 @@
 /*
-*
-* Copyright (c) 2021 Darryl deHaan
-* SPDX-License-Identifier: MIT
-*
-*/
+ *
+ * Copyright (c) 2021 Darryl deHaan
+ * SPDX-License-Identifier: MIT
+ *
+ */
 
 #include <kernel.h>
 #include <bluetooth/services/bas.h>
@@ -51,8 +51,8 @@ void battery_status_init() {
     lv_style_set_text_color(&label_style, LV_STATE_DEFAULT, LV_COLOR_BLACK);
     lv_style_set_bg_color(&label_style, LV_STATE_DEFAULT, LV_COLOR_WHITE);
 
-    //lv_obj_t * batt_full_chg_icon = lv_img_create(lv_scr_act(), NULL);
-    //lv_img_set_src(batt_full_chg_icon, &batt_full_chg);
+    // lv_obj_t * batt_full_chg_icon = lv_img_create(lv_scr_act(), NULL);
+    // lv_img_set_src(batt_full_chg_icon, &batt_full_chg);
 }
 
 K_MUTEX_DEFINE(battery_status_mutex);
@@ -73,58 +73,57 @@ void set_battery_symbol(lv_obj_t *icon) {
 #if IS_ENABLED(CONFIG_USB)
     if (level > 95) {
         if (battery_status_state.usb_present) {
-             lv_img_set_src(icon, &batt_100_chg);
-        }else{
+            lv_img_set_src(icon, &batt_100_chg);
+        } else {
             lv_img_set_src(icon, &batt_100);
         }
     } else if (level > 74) {
         if (battery_status_state.usb_present) {
-             lv_img_set_src(icon, &batt_75_chg);
-        }else{
+            lv_img_set_src(icon, &batt_75_chg);
+        } else {
             lv_img_set_src(icon, &batt_75);
         }
     } else if (level > 49) {
         if (battery_status_state.usb_present) {
-             lv_img_set_src(icon, &batt_50_chg);
-        }else{
+            lv_img_set_src(icon, &batt_50_chg);
+        } else {
             lv_img_set_src(icon, &batt_50);
         }
     } else if (level > 24) {
         if (battery_status_state.usb_present) {
-             lv_img_set_src(icon, &batt_25_chg);
-        }else{
+            lv_img_set_src(icon, &batt_25_chg);
+        } else {
             lv_img_set_src(icon, &batt_25);
         }
     } else if (level > 5) {
         if (battery_status_state.usb_present) {
-             lv_img_set_src(icon, &batt_5_chg);
-        }else{
+            lv_img_set_src(icon, &batt_5_chg);
+        } else {
             lv_img_set_src(icon, &batt_5);
         }
     } else {
         if (battery_status_state.usb_present) {
-             lv_img_set_src(icon, &batt_0_chg);
-        }else{
+            lv_img_set_src(icon, &batt_0_chg);
+        } else {
             lv_img_set_src(icon, &batt_0);
         }
     }
-    //lv_label_set_text(label, text);
-    //lv_img_set_src(icon, );
+    // lv_label_set_text(label, text);
+    // lv_img_set_src(icon, );
 
 #endif /* IS_ENABLED(CONFIG_USB) */
 
     k_mutex_unlock(&battery_status_mutex);
-
 }
 
 int zmk_widget_battery_status_init(struct zmk_widget_battery_status *widget, lv_obj_t *parent) {
     battery_status_init();
-    //widget->obj = lv_label_create(parent, NULL);
+    // widget->obj = lv_label_create(parent, NULL);
     widget->obj = lv_img_create(parent, NULL);
-    //widget->obj2 = lv_label_create(parent, NULL);
+    // widget->obj2 = lv_label_create(parent, NULL);
     lv_obj_add_style(widget->obj, LV_LABEL_PART_MAIN, &label_style);
 
-    //lv_obj_set_size(widget->obj, 40, 15);
+    // lv_obj_set_size(widget->obj, 40, 15);
     set_battery_symbol(widget->obj);
 
     sys_slist_append(&widgets, &widget->node);
