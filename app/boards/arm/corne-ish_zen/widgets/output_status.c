@@ -1,9 +1,9 @@
 /*
-*
-* Copyright (c) 2021 Darryl deHaan
-* SPDX-License-Identifier: MIT
-*
-*/
+ *
+ * Copyright (c) 2021 Darryl deHaan
+ * SPDX-License-Identifier: MIT
+ *
+ */
 
 #include <kernel.h>
 #include <bluetooth/services/bas.h>
@@ -65,7 +65,7 @@ void output_status_init() {
 
 void set_status_symbol(lv_obj_t *icon) {
 
-   k_mutex_lock(&output_status_mutex, K_FOREVER);
+    k_mutex_lock(&output_status_mutex, K_FOREVER);
     enum zmk_endpoint selected_endpoint = output_status_state.selected_endpoint;
     bool active_profile_connected = output_status_state.active_profile_connected;
     bool active_profie_bonded = output_status_state.active_profile_bonded;
@@ -79,7 +79,7 @@ void set_status_symbol(lv_obj_t *icon) {
     case ZMK_ENDPOINT_BLE:
         if (active_profie_bonded) {
             if (active_profile_connected) {
-                //sprintf(text, LV_SYMBOL_BLUETOOTH "%i " LV_SYMBOL_OK, active_profile_index);
+                // sprintf(text, LV_SYMBOL_BLUETOOTH "%i " LV_SYMBOL_OK, active_profile_index);
                 switch (active_profile_index) {
                 case 0:
 #if CONFIG_BOARD_CORNEISH_ZEN_RIGHT
@@ -102,34 +102,34 @@ void set_status_symbol(lv_obj_t *icon) {
                     break;
                 }
             } else {
-                //sprintf(text, LV_SYMBOL_BLUETOOTH "%i " LV_SYMBOL_CLOSE, active_profile_index);
+                // sprintf(text, LV_SYMBOL_BLUETOOTH "%i " LV_SYMBOL_CLOSE, active_profile_index);
                 lv_img_set_src(icon, &bluetooth_disconnected_right);
             }
         } else {
-            //sprintf(text, LV_SYMBOL_BLUETOOTH "%i " LV_SYMBOL_SETTINGS, active_profile_index);
-            //lv_img_set_src(icon, &bluetooth_advertising);
+            // sprintf(text, LV_SYMBOL_BLUETOOTH "%i " LV_SYMBOL_SETTINGS, active_profile_index);
+            // lv_img_set_src(icon, &bluetooth_advertising);
             switch (active_profile_index) {
-                case 0:
-                    lv_img_set_src(icon, &bluetooth_advertising_1);
-                    break;
-                case 1:
-                    lv_img_set_src(icon, &bluetooth_advertising_2);
-                    break;
-                case 2:
-                    lv_img_set_src(icon, &bluetooth_advertising_3);
-                    break;
-                case 3:
-                    lv_img_set_src(icon, &bluetooth_advertising_4);
-                    break;
-                case 4:
-                    lv_img_set_src(icon, &bluetooth_advertising_5);
-                    break;
-            }    
+            case 0:
+                lv_img_set_src(icon, &bluetooth_advertising_1);
+                break;
+            case 1:
+                lv_img_set_src(icon, &bluetooth_advertising_2);
+                break;
+            case 2:
+                lv_img_set_src(icon, &bluetooth_advertising_3);
+                break;
+            case 3:
+                lv_img_set_src(icon, &bluetooth_advertising_4);
+                break;
+            case 4:
+                lv_img_set_src(icon, &bluetooth_advertising_5);
+                break;
+            }
         }
         break;
     }
 
-    //lv_label_set_text(label, text);
+    // lv_label_set_text(label, text);
 }
 
 static void update_state() {
@@ -144,9 +144,9 @@ static void update_state() {
 int zmk_widget_output_status_init(struct zmk_widget_output_status *widget, lv_obj_t *parent) {
     output_status_init();
     update_state();
-    //widget->obj = lv_label_create(parent, NULL);
+    // widget->obj = lv_label_create(parent, NULL);
     widget->obj = lv_img_create(parent, NULL);
-  
+
     set_status_symbol(widget->obj);
 
     sys_slist_append(&widgets, &widget->node);
@@ -167,13 +167,12 @@ K_WORK_DEFINE(output_status_update_work, output_status_update_cb);
 
 int output_status_listener(const zmk_event_t *eh) {
 
-
     // Be sure we have widgets initialized before doing any work,
     // since the status event can fire before display code inits.
     if (!style_initialized) {
         return ZMK_EV_EVENT_BUBBLE;
     }
-    
+
     update_state();
 
     k_work_submit_to_queue(zmk_display_work_q(), &output_status_update_work);
