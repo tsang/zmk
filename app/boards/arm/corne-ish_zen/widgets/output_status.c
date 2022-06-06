@@ -181,7 +181,7 @@ int output_status_listener(const zmk_event_t *eh) {
 
 ZMK_LISTENER(widget_output_status, output_status_listener)
 ZMK_SUBSCRIPTION(widget_output_status, zmk_endpoint_selection_changed);
-#if defined(CONFIG_USB)
+#if defined(CONFIG_ZMK_USB)
 ZMK_SUBSCRIPTION(widget_output_status, zmk_usb_conn_state_changed);
 #endif
 #if defined(CONFIG_ZMK_BLE)
