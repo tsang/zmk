@@ -5,17 +5,13 @@
 
 if BOARD_CORNEISH_ZEN_LEFT
 
-	config ZMK_KEYBOARD_NAME
+config ZMK_KEYBOARD_NAME
 	default "Corne-ish Zen"
 
+config ZMK_SPLIT_ROLE_CENTRAL
+	default y
+
 endif # BOARD_CORNEISH_ZEN_LEFT
-
-if BOARD_CORNEISH_ZEN_RIGHT
-
-	config ZMK_KEYBOARD_NAME
-	default "Corne-ish Zen rt"
-
-endif # BOARD_CORNEISH_ZEN_RIGHT
 
 
 if BOARD_CORNEISH_ZEN_LEFT || BOARD_CORNEISH_ZEN_RIGHT
