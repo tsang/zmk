@@ -20,6 +20,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zmk/usb.h>
 #include <zmk/ble.h>
 #include <zmk/endpoints.h>
+#include <zmk/split/bluetooth/peripheral.h>
+#include <zmk/events/split_peripheral_status_changed.h>
 
 LV_IMG_DECLARE(bluetooth_advertising);
 LV_IMG_DECLARE(bluetooth_connected_right);
@@ -44,10 +46,14 @@ static bool style_initialized = false;
 K_MUTEX_DEFINE(output_status_mutex);
 
 struct {
+#if CONFIG_BOARD_CORNEISH_ZEN_RIGHT
+    bool peripheral_connected;
+#else
     enum zmk_endpoint selected_endpoint;
     bool active_profile_connected;
     bool active_profile_bonded;
     uint8_t active_profile_index;
+#endif
 } output_status_state;
 
 void output_status_init() {
@@ -66,12 +72,23 @@ void output_status_init() {
 void set_status_symbol(lv_obj_t *icon) {
 
     k_mutex_lock(&output_status_mutex, K_FOREVER);
+#if CONFIG_BOARD_CORNEISH_ZEN_RIGHT
+    bool peripheral_connected = output_status_state.peripheral_connected;
+#else
     enum zmk_endpoint selected_endpoint = output_status_state.selected_endpoint;
     bool active_profile_connected = output_status_state.active_profile_connected;
     bool active_profie_bonded = output_status_state.active_profile_bonded;
     uint8_t active_profile_index = output_status_state.active_profile_index;
+#endif
     k_mutex_unlock(&output_status_mutex);
 
+#if CONFIG_BOARD_CORNEISH_ZEN_RIGHT
+    if (peripheral_connected) {
+        lv_img_set_src(icon, &bluetooth_connected_right);
+    } else {
+        lv_img_set_src(icon, &bluetooth_disconnected_right);
+    }
+#else
     switch (selected_endpoint) {
     case ZMK_ENDPOINT_USB:
         lv_img_set_src(icon, &USB_connected);
@@ -82,11 +99,7 @@ void set_status_symbol(lv_obj_t *icon) {
                 // sprintf(text, LV_SYMBOL_BLUETOOTH "%i " LV_SYMBOL_OK, active_profile_index);
                 switch (active_profile_index) {
                 case 0:
-#if CONFIG_BOARD_CORNEISH_ZEN_RIGHT
-                    lv_img_set_src(icon, &bluetooth_connected_right);
-#else
                     lv_img_set_src(icon, &bluetooth_connected_1);
-#endif
                     break;
                 case 1:
                     lv_img_set_src(icon, &bluetooth_connected_2);
@@ -128,16 +141,21 @@ void set_status_symbol(lv_obj_t *icon) {
         }
         break;
     }
+#endif
 
     // lv_label_set_text(label, text);
 }
 
 static void update_state() {
     k_mutex_lock(&output_status_mutex, K_FOREVER);
+#if CONFIG_BOARD_CORNEISH_ZEN_RIGHT
+    output_status_state.peripheral_connected = zmk_split_bt_peripheral_is_connected();
+#else
     output_status_state.selected_endpoint = zmk_endpoints_selected();
     output_status_state.active_profile_connected = zmk_ble_active_profile_is_connected();
     output_status_state.active_profile_bonded = !zmk_ble_active_profile_is_open();
     output_status_state.active_profile_index = zmk_ble_active_profile_index();
+#endif
     k_mutex_unlock(&output_status_mutex);
 }
 
@@ -180,10 +198,14 @@ int output_status_listener(const zmk_event_t *eh) {
 }
 
 ZMK_LISTENER(widget_output_status, output_status_listener)
+#if CONFIG_BOARD_CORNEISH_ZEN_RIGHT
+ZMK_SUBSCRIPTION(widget_output_status, zmk_split_peripheral_status_changed);
+#else
 ZMK_SUBSCRIPTION(widget_output_status, zmk_endpoint_selection_changed);
-#if defined(CONFIG_ZMK_USB)
+#    if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
 ZMK_SUBSCRIPTION(widget_output_status, zmk_usb_conn_state_changed);
-#endif
-#if defined(CONFIG_ZMK_BLE)
+#    endif
+#    if defined(CONFIG_ZMK_BLE)
 ZMK_SUBSCRIPTION(widget_output_status, zmk_ble_active_profile_changed);
+#    endif
 #endif
