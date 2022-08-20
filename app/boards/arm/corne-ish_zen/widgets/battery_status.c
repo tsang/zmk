@@ -59,9 +59,9 @@ K_MUTEX_DEFINE(battery_status_mutex);
 
 struct {
     uint8_t level;
-#if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
+    uint8_t state_prev;
     bool usb_present;
-#endif
+    bool usb_prev;
 } battery_status_state;
 
 void set_battery_symbol(lv_obj_t *icon) {
@@ -69,49 +69,48 @@ void set_battery_symbol(lv_obj_t *icon) {
     k_mutex_lock(&battery_status_mutex, K_FOREVER);
 
     uint8_t level = battery_status_state.level;
+    bool usb_present = battery_status_state.usb_present;
+    uint8_t state;
 
-#if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
-    if (level > 95) {
-        if (battery_status_state.usb_present) {
-            lv_img_set_src(icon, &batt_100_chg);
-        } else {
-            lv_img_set_src(icon, &batt_100);
-        }
-    } else if (level > 74) {
-        if (battery_status_state.usb_present) {
-            lv_img_set_src(icon, &batt_75_chg);
-        } else {
-            lv_img_set_src(icon, &batt_75);
-        }
-    } else if (level > 49) {
-        if (battery_status_state.usb_present) {
-            lv_img_set_src(icon, &batt_50_chg);
-        } else {
-            lv_img_set_src(icon, &batt_50);
-        }
-    } else if (level > 24) {
-        if (battery_status_state.usb_present) {
-            lv_img_set_src(icon, &batt_25_chg);
-        } else {
-            lv_img_set_src(icon, &batt_25);
-        }
+    if (level > 87) {
+        state = 5;
+    } else if (level > 62) {
+        state = 4;
+    } else if (level > 37) {
+        state = 3;
+    } else if (level > 12) {
+        state = 2;
     } else if (level > 5) {
-        if (battery_status_state.usb_present) {
-            lv_img_set_src(icon, &batt_5_chg);
-        } else {
-            lv_img_set_src(icon, &batt_5);
-        }
+        state = 1;
     } else {
-        if (battery_status_state.usb_present) {
-            lv_img_set_src(icon, &batt_0_chg);
-        } else {
-            lv_img_set_src(icon, &batt_0);
-        }
+        state = 0;
     }
-    // lv_label_set_text(label, text);
-    // lv_img_set_src(icon, );
 
-#endif /* IS_ENABLED(CONFIG_USB) */
+    // something to update
+    if (usb_present != battery_status_state.usb_prev || state != battery_status_state.state_prev) {
+        switch (state) {
+        case 5:
+            lv_img_set_src(icon, usb_present ? &batt_100_chg : &batt_100);
+            break;
+        case 4:
+            lv_img_set_src(icon, usb_present ? &batt_75_chg : &batt_75);
+            break;
+        case 3:
+            lv_img_set_src(icon, usb_present ? &batt_50_chg : &batt_50);
+            break;
+        case 2:
+            lv_img_set_src(icon, usb_present ? &batt_25_chg : &batt_25);
+            break;
+        case 1:
+            lv_img_set_src(icon, usb_present ? &batt_5_chg : &batt_5);
+            break;
+        default:
+            lv_img_set_src(icon, usb_present ? &batt_0_chg : &batt_0);
+            break;
+        }
+        battery_status_state.usb_prev = usb_present;
+        battery_status_state.state_prev = state;
+    }
 
     k_mutex_unlock(&battery_status_mutex);
 }
@@ -147,9 +146,7 @@ int battery_status_listener(const zmk_event_t *eh) {
 
     battery_status_state.level = bt_bas_get_battery_level();
 
-#if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
     battery_status_state.usb_present = zmk_usb_is_powered();
-#endif /* IS_ENABLED(CONFIG_USB) */
 
     k_mutex_unlock(&battery_status_mutex);
 
@@ -159,6 +156,4 @@ int battery_status_listener(const zmk_event_t *eh) {
 
 ZMK_LISTENER(widget_battery_status, battery_status_listener)
 ZMK_SUBSCRIPTION(widget_battery_status, zmk_battery_state_changed);
-#if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
 ZMK_SUBSCRIPTION(widget_battery_status, zmk_usb_conn_state_changed);
-#endif /* IS_ENABLED(CONFIG_USB) */
